@@ -8,6 +8,7 @@ class Bot:
     def say_name(self):
         print(self.name)
 
+
 bot = Bot("Jarvis")
 bot.say_name()
 bot.send_message("Hi, mister Stark")

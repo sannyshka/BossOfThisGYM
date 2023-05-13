@@ -7,6 +7,7 @@ class User:
             return self.name.lower() == other.name.lower()
         return False
 
+
 first_user = User("SASHA")
 second_user = User("sasha")
 print(first_user == second_user)

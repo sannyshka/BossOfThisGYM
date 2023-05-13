@@ -3,5 +3,6 @@ class MyStr(str):
         return self.upper()
 
 
+
 my_str = MyStr("test")
 print(my_str)

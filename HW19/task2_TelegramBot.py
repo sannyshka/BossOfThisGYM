@@ -9,6 +9,7 @@ class Bot:
         print(message)
 
 
+
 class TelegramBot(Bot):
     def __init__(self, name):
         super().__init__(name)

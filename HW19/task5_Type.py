@@ -4,6 +4,7 @@ Bot = type("Bot", (), {
     "say_name": lambda self: print(self.name)
 })
 
+
 bot = Bot("Jarvis")
 bot.say_name()
 bot.send_message("Hi, mister Stark")
