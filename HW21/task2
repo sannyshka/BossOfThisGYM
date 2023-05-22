@@ -1,0 +1,6 @@
+INSERT INTO users (first_name, last_name, age)
+VALUES ('Sasha', 'Shevtsov', 26),
+       ('Heralt', 'z Rivii', 57),
+       ('Peter', 'Parker', 18),
+       ('Trevor', 'Philips', 51),
+       ('Aloy','Nora', 18);
