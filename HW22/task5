@@ -1,0 +1,7 @@
+SELECT age, users
+FROM (SELECT age, COUNT(*) AS users
+      FROM users
+      GROUP BY age
+      HAVING users > 1
+)
+ORDER BY users DESC, age;
