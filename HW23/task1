@@ -1,0 +1,34 @@
+CREATE TABLE users (
+    id INT PRIMARY KEY ,
+    first_name VARCHAR(100) ,
+    last_name VARCHAR(100) ,
+    age INT
+);
+
+
+CREATE TABLE publishing_houses (
+    id INT PRIMARY KEY ,
+    name VARCHAR(100) ,
+    rating INT DEFAULT 5
+);
+
+
+CREATE TABLE books (
+    id INT PRIMARY KEY ,
+    title VARCHAR(100) ,
+    author VARCHAR(100) ,
+    year INT ,
+    price DECIMAL(10, 2) ,
+    publishing_house_id INT ,
+    FOREIGN KEY (publishing_house_id) REFERENCES publishing_houses
+);
+
+
+CREATE TABLE purchases (
+    id INT PRIMARY KEY ,
+    users_id INT ,
+    book_id INT ,
+    date DATE ,
+    FOREIGN KEY (users_id) REFERENCES users(id) ,
+    FOREIGN KEY (book_id) REFERENCES books(id)
+);
