@@ -33,6 +33,5 @@ def json():
     data = {'message': 'Hello, world!'}
     return jsonify(data)
 
-
 if __name__ == '__main__':
     app.run()
