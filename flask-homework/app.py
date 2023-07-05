@@ -1,9 +1,7 @@
 from flask import Flask, jsonify, render_template
 import logging
 
-
 app = Flask(__name__)
-
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)
@@ -33,6 +31,7 @@ def json():
     data = {'message': 'Hello, world!'}
     return jsonify(data)
 
+from views import *
 
 if __name__ == '__main__':
-    app.run()
+    app.run()(debug=True)
