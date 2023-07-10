@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template
 import logging
 
 app = Flask(__name__)
+app.secret_key = 'secret_key'
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)
