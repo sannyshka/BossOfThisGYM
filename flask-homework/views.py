@@ -1,9 +1,8 @@
-from flask import abort, request, redirect
+from flask import abort, request, redirect, render_template, url_for, session
 import random
 
 
 from app import app
-
 
 
 # 1. Створити функції для обробки таких запитів:
@@ -19,20 +18,25 @@ def get_users():
     names = ['Sasha', 'Vasya', 'Katya', 'Ivan', 'Vova']
     count = int(request.args.get('count', random.randint(1, len(names))))
     random_names = random.sample(names, count)
-    return ', '.join(random_names)
+    username = session.get('username')
+    if username:
+        greeting = f'Hello, {username}!'
+    else:
+        return redirect(url_for('login'))
+    return render_template('users/users.html', users=random_names, greeting=greeting)
 
 @app.route('/books')
 def get_books():
     books = ['katerina', 'kobzar', 'gaydamaky', 'kavkaz', 'zapovit']
     count = int(request.args.get('count', random.randint(1, len(books))))
     random_books = random.sample(books, count)
+    username = session.get('username')
+    if username:
+        greeting = f'Hello, {username}!'
+    else:
+        return redirect(url_for('login'))
+    return render_template('books/books.html', books=random_books, greeting=greeting)
 
-    html_list = '<ul>'
-    for book in random_books:
-        html_list += '<li>' + book + '</li>'
-    html_list += '</ul>'
-
-    return html_list
 
 # 2. Створити функції-обробники запитів на GET  /users та GET /books, що мають приймати url-параметри (/users/1, /books/kobzar):
 # - Для /users – id, що може бути тільки числовим значенням. Якщо значення id ділиться на 2 - повертати текст із цим значенням. Якщо не ділиться – повертати статус 404 Not Found
@@ -40,15 +44,25 @@ def get_books():
 
 @app.route('/users/<int:user_id>')
 def get_user(user_id):
+    username = session.get('username')
+    if username:
+        greeting = f'Hello, {username}!'
+    else:
+        return redirect(url_for('login'))
     if user_id % 2 == 0:
-        return str(user_id)
+        return render_template('users/users_id.html', user_id=user_id, greeting=greeting)
     else:
         abort(404)
 
 @app.route('/books/<string:title>')
 def get_book(title):
     transformed_title = title.capitalize()
-    return transformed_title
+    username = session.get('username')
+    if username:
+        greeting = f'Hello, {username}!'
+    else:
+        return redirect(url_for('login'))
+    return render_template('books/books_id.html', book_title=transformed_title, greeting=greeting)
 
 # 3. Створити функцію для обробки запитів GET /params – має повертати HTML таблицю, в якій будуть міститися ключі та значення query parameters.
 # Наприклад, при запиті GET /params?name=Test&age=1, на сторінці має відобразитися:
@@ -62,14 +76,15 @@ def get_book(title):
 @app.route('/params')
 def get_params():
     params = request.args
-    table_html = '<table>\n<tr><th>parameter</th><th>value</th></tr>\n'
+    username = session.get('username')
+    if username:
+        greeting = f'Hello, {username}!'
+    else:
+        return redirect(url_for('login'))
+    return render_template('params/params.html', params=params, greeting=greeting)
 
-    for key, value in params.items():
-        table_html += f'<tr><td>{key}</td><td>{value}</td></tr>\n'
 
-    table_html += '</table>'
 
-    return table_html
 
 # 4. Створити функцію для обробки запитів GET, POST /login – при запиті GET має
 # повертати HTML форму (method=POST, action=/login), що має містити поля username, password та кнопку submit.
@@ -86,14 +101,7 @@ def get_params():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        form = '''
-        <form method="POST" action="/login">
-            <input type="text" name="username" placeholder="Username" required><br>
-            <input type="password" name="password" placeholder="Password" required><br>
-            <input type="submit" value="Log in">
-        </form>
-        '''
-        return form
+        return render_template('login/login.html')
 
     elif request.method == 'POST':
         if 'username' in request.form and 'password' in request.form:
@@ -101,17 +109,23 @@ def login():
             password = request.form['password']
 
             if len(username) < 5 or len(password) < 8:
-                abort(400, 'Username or password does not meet the requirements')
+                error_message = 'Username or password does not meet the requirements'
+                return render_template('login/login.html', error_message=error_message)
 
             has_digit = any(char.isdigit() for char in password)
             has_uppercase = any(char.isupper() for char in password)
 
             if not (has_digit and has_uppercase):
-                abort(400, 'Password should contain at least 1 digit and 1 uppercase letter')
+                error_message = 'Password should contain at least 1 digit and 1 uppercase letter'
+                return render_template('login/login.html', error_message=error_message)
 
-            return redirect('/users')
-        else:
-            abort(400, 'Missing username or password')
+            session['username'] = username
+
+            return redirect(url_for('get_users'))
+        username = session.get('username')
+        if username:
+            return redirect(url_for('get_users'))
+        return render_template('login/login.html')
 
 
 # 5. (необов'язкове виконання) Створити кастомні обробники помилок 404 та 500,
@@ -132,16 +146,16 @@ def internal_server_error(error):
 
 @app.route('/home')
 def index():
-    return '''
-        <html>
-        <body>
-            <h1>Welcome to the Homepage!</h1>
-            <ul>
-                <li><a href="/login">Login</a></li>
-                <li><a href="/users">Users</a></li>
-                <li><a href="/books">Books</a></li>
-                <li><a href="/params">Params</a></li>
-            </ul>
-        </body>
-        </html>
-    '''
+    username = session.get('username')
+
+    if username:
+        greeting = f'Hello, {username}!'
+    else:
+        return redirect(url_for('login'))
+
+    return render_template('home/home.html', greeting=greeting)
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
