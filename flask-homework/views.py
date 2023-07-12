@@ -1,8 +1,8 @@
 from flask import abort, request, redirect, render_template, url_for, session
 import random
-
-
+import jsonify
 from app import app
+from models import User, Book, Purchase
 
 
 # 1. Створити функції для обробки таких запитів:
@@ -159,3 +159,69 @@ def index():
 def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
+
+@app.route('/purchases')
+def get_purchases():
+    purchases = ['1', '2', '3', '4', '5']
+    count = int(request.args.get('count', random.randint(1, len(purchases))))
+    random_purchases = random.sample(purchases, count)
+    username = session.get('username')
+    if username:
+        greeting = f'Hello, {username}!'
+    else:
+        return redirect(url_for('login'))
+    return render_template('purchases/purchases.html', purchases=random_purchases, greeting=greeting)
+
+# task 5/35
+
+@app.route('/users/json')
+def get_users_json():
+    users = User.query.all()
+    user_list = [{'id': user.id, 'name': user.name} for user in users]
+    return jsonify(users=user_list)
+
+
+
+@app.route('/users/<int:user_id>/json')
+def get_user_json(user_id):
+    user = User.query.get(user_id)
+    if user:
+        return jsonify(id=user.id, name=user.name)
+    else:
+        abort(404)
+
+
+
+@app.route('/books/json')
+def get_books_json():
+    books = Book.query.all()
+    book_list = [{'id': book.id, 'title': book.title} for book in books]
+    return jsonify(books=book_list)
+
+
+
+@app.route('/books/<int:book_id>/json')
+def get_book_json(book_id):
+    book = Book.query.get(book_id)
+    if book:
+        return jsonify(id=book.id, title=book.title)
+    else:
+        abort(404)
+
+
+
+@app.route('/purchases/json')
+def get_purchases_json():
+    purchases = Purchase.query.all()
+    purchase_list = [{'id': purchase.id, 'name': purchase.name} for purchase in purchases]
+    return jsonify(purchases=purchase_list)
+
+
+
+@app.route('/purchases/<int:purchase_id>/json')
+def get_purchase_json(purchase_id):
+    purchase = Purchase.query.get(purchase_id)
+    if purchase:
+        return jsonify(id=purchase.id, name=purchase.name)
+    else:
+        abort(404)
