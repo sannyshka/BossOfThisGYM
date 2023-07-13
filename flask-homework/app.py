@@ -1,8 +1,17 @@
 from flask import Flask, jsonify, render_template
 import logging
+from dotenv import load_dotenv
+from config import AppConfig
+from flask_sqlalchemy import SQLAlchemy
+
+load_dotenv()
+
+db = SQLAlchemy()
 
 app = Flask(__name__)
-app.secret_key = 'secret_key'
+
+app.config.from_object(AppConfig)
+db.init_app(app)
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)
@@ -33,6 +42,12 @@ def json():
     return jsonify(data)
 
 from views import *
+from models import *
+
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
-    app.run()(debug=True)
+    app.run(host=AppConfig.HOST,
+            port=AppConfig.PORT,
+            debug=AppConfig.DEBUG)
