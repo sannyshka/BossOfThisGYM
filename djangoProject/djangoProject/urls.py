@@ -17,10 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from users.views import users_view
+from book.views import book_list
+from user.views import user_list
+from purchase.views import purchase_list
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/', users_view)
+    path('users/', users_view),
+    path('book/', book_list),
+    path('user/', user_list),
+    path('purchase/', purchase_list),
 
 ]
